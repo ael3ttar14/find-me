@@ -49,9 +49,11 @@ export default function Header() {
         </div>
       </div>
       <div className="element">
-        {/* <Link to="/" className="element-nav">
-          Home
-        </Link> */}
+        {
+          <Link to="/" className="element-nav">
+            Home
+          </Link>
+        }
       </div>
       <div className="d-flex">
         {!window.localStorage.getItem("email") ? (
