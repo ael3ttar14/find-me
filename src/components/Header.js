@@ -1,54 +1,88 @@
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+
 export default function Header() {
+  const navigate = useNavigate();
+
   function logout() {
     window.localStorage.removeItem("email");
-    window.location.pathname = "/register";
+    window.localStorage.removeItem("firstName");
+    window.location.pathname = "/";
   }
+
+  const firstName = window.localStorage.getItem("firstName");
+
+  const handleProfileClick = async () => {
+    const id = window.localStorage.getItem("id");
+    if (!id) {
+      toast.warn("Please log in first!");
+      setTimeout(() => {
+        navigate("/login");
+      }, 2500);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/users/${id}/`);
+      console.log("User data fetched successfully:", response);
+      navigate("/profile", {
+        state: { userData: response.data },
+      });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      toast.error("Error fetching user data.");
+    }
+  };
+
   return (
-    <div className="container">
-      <nav className="d-flex">
-        <div className="d-flex">
-          <div className="title">
-            <Link to="/home" className="find">
-              FIND
-            </Link>
-            <Link to="/home" className="me">
-              ME
-            </Link>
-          </div>
-          <div className="element">
-            <Link to="/home" className="element-nav">
-              Home
-            </Link>
-            <Link to="/about" className="element-nav">
-              About
-            </Link>
-            <Link to="/dashboard" className="element-nav">
-            Dashboard
-            </Link>
-          </div>
+    <nav className="d-flex">
+      <div className="d-flex">
+        <div className="title">
+          <Link to="/" className="find">
+            FIND
+          </Link>
+          <Link to="/" className="me">
+            ME
+          </Link>
         </div>
-        <div className="d-flex">
-          {!window.localStorage.getItem("email") ? (
-            <>
-              <Link
-                to="/register"
-                style={{ marginRight: "10px" }}
-                className="reg-nav"
-              >
-                Register
-              </Link>
-              <Link to="/login" className="reg-nav">
-                login
-              </Link>
-            </>
-          ) : (
-            <Link to="/register" className="reg-nav" onClick={logout}>
-              logout
+      </div>
+      <div className="element">
+        {/* <Link to="/" className="element-nav">
+          Home
+        </Link> */}
+      </div>
+      <div className="d-flex">
+        {!window.localStorage.getItem("email") ? (
+          <>
+            <Link
+              to="/register"
+              style={{ marginRight: "5px" }}
+              className="reg-nav"
+            >
+              Register
             </Link>
-          )}
-        </div>
-      </nav>
-    </div>
+            <Link to="/login" className="reg-nav">
+              Login
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/src/Profile.js"
+              className="acc"
+              title="Account"
+              onClick={handleProfileClick}
+            >
+              Hi, {firstName}
+            </Link>
+            <div to="/home" className="reg-nav" onClick={logout}>
+              Logout
+            </div>
+          </>
+        )}
+      </div>
+    </nav>
   );
 }
